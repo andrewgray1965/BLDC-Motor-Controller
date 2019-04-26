@@ -1,55 +1,66 @@
-// forked from https://github.com/MPaulHolmes/AC-Controller/blob/master/uart.h
-// mainly 'cos I cant figure out howto live link to it .... andrew.
-// AC CONTROL/DRIVER BOARD 21
-#ifndef UART4011_H
-#define UART4011_H
-#include "ACController.h"
+/* init uart
+* Starting page 113 of dsPIC30F4011.pdf
+* BaudRate = Fcy/16*(UxBRG+1)); # where Fcy = Instruction clock rate, UxBRG 16 bit value, 0-65535
+*
+* For clock = 7.3728Mhz * 4 = 29.4912 MHz
+* Soo ...
+* 115200
+*
+*/
+
+#ifndef XTAL
+#define XTAL 29491200
+#endif
+
+#ifndef UART
+
+void interrupt_U2serial {
+
+}
+
+void _init_uart2(int rate) {
+    U2MODE.UARTEN = 1;      // enable the uart2
+    // default is for 8,N,1
+    U2BRG = XTAL/(16 * rate);
+    // ie for rate = 115200, U2BRG = 29491200/(16*115200) = 16
+    // ie for rate = 9200, U2BRG = 29491200/(16*9200) = 96
+}
+
+int _u2_tx (char txbyte) {
+
+    U2MODE.UTXEN = 1;
+    U2TXREG = txbyte;
 
 
-#define MAX_COMMAND_LENGTH 40
-
-typedef struct UARTCommand_typ {
-	volatile int i;
-	volatile int complete;
-	volatile char string[MAX_COMMAND_LENGTH];
-	volatile unsigned int number;  // the number part of the command.  Ex:  kp 3000.  string = {'k','p'}.  number = 3000.
-} UARTCommand;
-
-typedef struct dataStreamTyp {
-	volatile unsigned int timeOfLastTransmission;
-	volatile unsigned int period;
-	volatile unsigned int startTime;
-	volatile unsigned int timer;
-	volatile int showStreamOnce;
-	volatile int Id_times10;
-	volatile int Iq_times10;
-	volatile int IdRef_times10;
-	volatile int IqRef_times10;
-	volatile int Vd;
-	volatile int Vq;
-	volatile int Ia_times10;
-	volatile int Ib_times10;
-	volatile int Ic_times10;
-	volatile int Va;
-	volatile int Vb;
-	volatile int Vc;
-	volatile int percentOfVoltageDiskBeingUsed;
-	volatile int batteryAmps_times10;
-	volatile int rawThrottle;
-	volatile int throttle;
-	volatile int temperature;
-	volatile int slipSpeedRPM;
-	volatile int electricalSpeedRPM;
-	volatile int mechanicalSpeedRPM;
-} dataStream;
-
-void InitUART2();
-int TransmitReady();
-int TransmitReadyAlt();
-void SendCharacter(char ch);
-int ReceiveBufferHasData();
-unsigned char GetCharacter();
-void ClearReceiveBuffer();
-void __attribute__((__interrupt__, auto_psv)) _U2RXInterrupt(void);
+    return 1;   // return OK
+}
 
 #endif
+
+/*
+    uart display screen, no input ....
+
+    Input :-
+
+        MOTOR RPM : 5000      >>>>>>>>>>>>>>>>>>
+            ACCEL : 1024      >>>>>>>>>>>>>>>>>>>>>>>>
+            BRAKE : yes/no
+             KILL : yes/no
+           Cruise : yes/no
+
+    Monitoring :-
+
+          Ctrl Temp : 0-100, then shutdown
+          Fan RPM : 2000 (ish) ... measure at full 12volts
+
+          Total Current : Sum of above.
+          Battery pack Voltage :
+          Battery pack Temperature :
+          Phase lead/lag degrees :
+          State : Accel/Brake/Cruise
+	  
+          Phase U Current : xxx Amps
+          Phase V Current : xxx Amps
+          Phase W Current : xxx Amps
+*/
+
