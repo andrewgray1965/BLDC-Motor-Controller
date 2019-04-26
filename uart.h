@@ -1,6 +1,6 @@
 /* init uart
 * Starting page 113 of dsPIC30F4011.pdf
-* BaudRate = Fcy/16*(UxBRG+1)); # where Fcy = Instruction clock rate, UxBRG 16 bit value, 0-65535
+* BaudRate = Fcy/(16*(UxBRG+1)); # where Fcy = Instruction clock rate, UxBRG 16 bit value, 0-65535
 *
 * For clock = 7.3728Mhz * 4 = 29.4912 MHz
 * Soo ...
@@ -9,7 +9,7 @@
 */
 
 #ifndef XTAL
-#define XTAL 29491200
+#define XTAL 29491200		// just assume a value if not already set.
 #endif
 
 #ifndef UART
@@ -21,7 +21,7 @@ void interrupt_U2serial {
 void _init_uart2(int rate) {
     U2MODE.UARTEN = 1;      // enable the uart2
     // default is for 8,N,1
-    U2BRG = XTAL/(16 * rate);
+    U2BRG = XTAL/(16 * (rate + 1));
     // ie for rate = 115200, U2BRG = 29491200/(16*115200) = 16
     // ie for rate = 9200, U2BRG = 29491200/(16*9200) = 96
 }
@@ -63,4 +63,3 @@ int _u2_tx (char txbyte) {
           Phase V Current : xxx Amps
           Phase W Current : xxx Amps
 */
-
