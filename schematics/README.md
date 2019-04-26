@@ -1,4 +1,4 @@
-the hardware is created from 3 circuit boards.
+the hardware is created from 3 circuit boards. The PCB files are created in DOS Protel PCB.
 
 1. FETPOWER.PCB, etc on aluminium substrate and plated with 1mm copper laser cut sections.
 2. DRIVERS.PCB. The mosfet drivers, more copper sections for high current path connections.
